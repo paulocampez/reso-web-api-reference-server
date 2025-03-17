@@ -47,6 +47,7 @@ public class GenericEntityCollectionProcessor implements EntityCollectionProcess
    private final MongoClient mongoClient;
    private Connection connect;
    private String dbType;
+   private ExpandHelper expandHelper;
    HashMap<String, ResourceInfo> resourceList = null;
    private static final Logger LOG = LoggerFactory.getLogger(GenericEntityCollectionProcessor.class);
    private static final int PAGE_SIZE = 100;
@@ -64,12 +65,16 @@ public class GenericEntityCollectionProcessor implements EntityCollectionProcess
       } catch (SQLException e) {
          LOG.error("Failed to establish database connection", e);
       }
+      this.expandHelper = new ExpandHelper(mongoClient);
       this.resourceList = new HashMap<>();
    }
 
+   @Override
    public void init(OData odata, ServiceMetadata serviceMetadata) {
       this.odata = odata;
       this.serviceMetadata = serviceMetadata;
+      // Log all navigation configurations at startup
+      expandHelper.logNavigationConfigurations();
    }
 
    public void addResource(ResourceInfo resource, String name) {
